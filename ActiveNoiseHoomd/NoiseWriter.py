@@ -5,8 +5,9 @@ import h5py
 
 class NoiseWriter():
 
-    def __init__(self, dims, spacing, va, Lambda, tau, dt, out_folder):
+    def __init__(self, dims, spacing, va, Lambda, tau, dt, out_folder, mode='w'):
 
+        self.filename = out_folder + "/noise_traj.h5"
         self._dims = dims
         self._dim = dims.shape[0]
         self._spacing = spacing
@@ -15,6 +16,16 @@ class NoiseWriter():
         self._tau = tau
         self._out_folder = out_folder
         self._dt = dt
+        if mode not in {'w', 'w-', 'x', 'a', 'r+'}:
+            message = 'mode must be writable.'
+            raise ValueError(message)
+        #self.file = h5py.File(self.filename, mode)
+        #self.write_metadata()
+        #frames = list(self.file.keys())
+        #if frames:
+        #    self._cur_frame = max(map(int, frames)) + 1
+        #else:
+        #    self._cur_frame = 1
 
         with h5py.File(out_folder + "/noise_traj.h5", "w") as f:
 
@@ -29,6 +40,22 @@ class NoiseWriter():
             f.create_dataset("/parameters/tau", data=tau)
             f.create_dataset("/parameters/Lambda", data=Lambda)
             f.create_dataset("/parameters/dt", data=dt)
+
+    #def write_metadata(self):
+    #    """Write the noise parameters"""
+    #    if 'va' not in self.file.attrs:
+    #        self.file.attrs.va = va
+    #    if 'tau' not in self.file.attrs:
+    #        self.file.attrs.tau = tau
+    #    if 'Lambda' not in self.file.attrs:
+    #        self.file.attrs.Lambda = Lambda
+    #    if 'dt' not in self.file.attrs:
+    #        self.file.attrs.dt = dt
+
+    #def act(self, timestep):
+    #    """Write out a new frame to the noise trajectory"""
+    #    new_frame = self.file.create_group(str(self._cur_frame))
+    #    self._cur_frame += 1
 
     def write(self, noise, time):
         """Write noise array to file."""
